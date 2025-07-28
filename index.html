@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Laberinto Trivia 16x16</title>
+<title>S.C and D.R</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -124,10 +124,7 @@
   <div id="feedback"></div>
 </div>
 <div id="instructions">
-  Usa las flechas o joystick táctil en celular.<br>
-  Cada 6 pasos aparece una pregunta.<br>
-  Si fallás, volvés al inicio y el laberinto se reinicia.<br>
-  Llegá a la salida amarilla para ganar.
+  Move with the joystick, answer the questions. Win.
 </div>
 <script>
 const MAZE_SIZE = 16;
@@ -175,10 +172,10 @@ const feedback = document.getElementById("feedback");
 
 const questions = [
   { question: "What is the opposite of 'tall'?", options: ["short", "big", "fat", "thin"], answer: 0 },
-  { question: "Which one is a fruit?", options: ["carrot", "apple", "onion", "lettuce"], answer: 1 },
-  { question: "Complete: I ___ to music.", options: ["listen", "watches", "go", "eats"], answer: 0 },
-  { question: "What’s the weather like? ☀️", options: ["rainy", "windy", "sunny", "snowy"], answer: 2 },
-  { question: "He is very ___ (funny/personality)", options: ["boring", "shy", "kind", "mean"], answer: 2 },
+  { question: "Which one is a motto", options: ["carrot", "hakuna matata", "we are people", "together we're better"], answer: 1 },
+  { question: "I ___ .", options: ["listen", "watches", "go", "eats"], answer: 0 },
+  { question: "Where is Mount Fuji?", options: ["Uruguay", "Bolivia", "Japan", "Peru"], answer: 2 },
+  { question: "He is very ___ (good personality)", options: ["boring", "shy", "kind", "mean"], answer: 2 },
   { question: "She ___ to school at 7am.", options: ["go", "goes", "going", "went"], answer: 1 },
   { question: "Which one is a drink?", options: ["juice", "bread", "rice", "chicken"], answer: 0 },
   { question: "Choose the verb:", options: ["book", "run", "table", "window"], answer: 1 },
@@ -200,49 +197,60 @@ const questions = [
   { question: "Which one is a vegetable?", options: ["carrot", "apple", "milk", "banana"], answer: 0 },
   { question: "How do you say 'mañana'?", options: ["yesterday", "today", "tomorrow", "tonight"], answer: 2 },
   { question: "Complete: I ___ my homework.", options: ["do", "doing", "does", "did"], answer: 0 },
-  { question: "Where is the teacher?", options: ["classroom", "kitchen", "bathroom", "bus stop"], answer: 0 },
-  { question: "What’s the opposite of 'fast'?", options: ["slow", "quick", "running", "small"], answer: 0 },
+  { question: "What are you doing?", options: ["playing", "fighting", "at job, working", "watching a race"], answer: 0 },
+  { question: "Opposite of fast", options: ["slow", "quick", "running", "small"], answer: 0 },
   { question: "Complete: She ___ happy.", options: ["is", "are", "be", "am"], answer: 0 },
   { question: "What do you wear on cold days?", options: ["scarf", "shorts", "sandals", "cap"], answer: 0 },
-  { question: "Where do you buy food?", options: ["supermarket", "hospital", "cinema", "school"], answer: 0 },
-  { question: "What do you use to write?", options: ["pen", "fork", "spoon", "book"], answer: 0 },
-  { question: "What’s the color of a banana?", options: ["green", "red", "yellow", "blue"], answer: 2 },
-  { question: "What does a doctor do?", options: ["teaches", "cooks", "drives", "heals"], answer: 3 },
-  { question: "Which is a day of the week?", options: ["Monday", "April", "Winter", "Morning"], answer: 0 },
-  { question: "What do you drink at breakfast?", options: ["juice", "bread", "cheese", "pasta"], answer: 0 },
+  { question: "Which one is a job?", options: ["crying", "producer", "student", "idk"], answer: 1 },
+  { question: "What do you use to write?", options: ["pen or pencil", "my toes", "ChatGPT", "book"], answer: 0 },
+  { question: "What’s the teacher name?", options: ["Santiago", "David", "Fernando", "Elon Musk"], answer: 2 },
+  { question: "What does a doctor do?", options: ["fights", "cooks", "drives", "heals"], answer: 3 },
+  { question: "Which one is a leap year?", options: ["2025", "2029", "2027", "2024"], answer: 3 },
+  { question: "Free question.", options: ["correct answer", "not this", "nor this", "WRONG"], answer: 0 },
   { question: "What’s the opposite of 'old'?", options: ["young", "tall", "big", "short"], answer: 0 },
-  { question: "How many days are in a week?", options: ["5", "6", "7", "8"], answer: 2 },
+  { question: "How many days are in a week?", options: ["12", "6", "7", "8"], answer: 2 },
   { question: "Complete: I ___ a sandwich.", options: ["eat", "eating", "ate", "eats"], answer: 0 },
   { question: "What is an animal that barks?", options: ["cat", "bird", "dog", "lion"], answer: 2 },
-  { question: "Where do you live?", options: ["house", "pencil", "bus", "book"], answer: 0 },
-  { question: "Choose the correct question word: ___ is your name?", options: ["Who", "What", "Where", "Why"], answer: 1 },
+  { question: "Where do you live?", options: ["in my house", "in a pencil", "in Canada", "in the street"], answer: 0 },
+  { question: " ___ your name?", options: ["Who'", "What's", "Where's", "Why's"], answer: 1 },
   { question: "What color is grass?", options: ["blue", "green", "red", "white"], answer: 1 },
-  { question: "Complete: We ___ students.", options: ["are", "is", "am", "be"], answer: 0 },
-  { question: "What do you use to cut?", options: ["scissors", "book", "tape", "ball"], answer: 0 },
-  { question: "Which is a room in a house?", options: ["kitchen", "school", "market", "bus"], answer: 0 },
-  { question: "What season is cold and snowy?", options: ["summer", "spring", "winter", "autumn"], answer: 2 },
+  { question: "We ___.", options: ["are students", "is uruguayan", "am YouTuber", "be good"], answer: 0 },
+  { question: "?tuc ot esu uoy od tahW", options: ["srossics", "koob", "epat", "llab"], answer: 0 },
+  { question: "COOK.", options: ["kitchen", "sky", "black hole", "dinosaur"], answer: 0 },
+  { question: "COLD.", options: ["summer", "spring", "winter", "autumn"], answer: 2 },
   { question: "Which is a transportation?", options: ["bus", "banana", "book", "table"], answer: 0 },
-  { question: "What do you wear on your hands?", options: ["gloves", "socks", "cap", "pants"], answer: 0 },
+  { question: "?sdnah ruoy no raew uoy od tahW", options: ["sevolg", "skcos", "pac", "sntap"], answer: 0 },
   { question: "What do you wear to swim?", options: ["swimsuit", "jacket", "scarf", "boots"], answer: 0 },
-  { question: "Where do you see movies?", options: ["cinema", "park", "school", "bank"], answer: 0 },
-  { question: "Which is a fast animal?", options: ["turtle", "snail", "cheetah", "frog"], answer: 2 },
-  { question: "Which is an emotion?", options: ["happy", "tall", "blue", "chair"], answer: 0 },
+  { question: "Only in ____", options: ["cinemas", "my house", "Castillos", "bank"], answer: 0 },
+  { question: "What's the best city of Uruguay?", options: ["Huaycan", "Beto Perez", "Castillos City", "Malvin Norte"], answer: 2 },
+  { question: "EMOTION.", options: ["happy", "tall", "blue", "chair"], answer: 0 },
   { question: "Which one is a family member?", options: ["uncle", "teacher", "nurse", "driver"], answer: 0 },
-  { question: "How do you say 'libro'?", options: ["pen", "book", "paper", "bag"], answer: 1 },
-  { question: "What is the color of blood?", options: ["green", "blue", "red", "black"], answer: 2 },
-  { question: "What do you use to eat soup?", options: ["spoon", "fork", "knife", "plate"], answer: 0 },
-  { question: "What is the opposite of 'clean'?", options: ["dirty", "neat", "bright", "clear"], answer: 0 },
+  { question: "What do you read?", options: ["pen", "book", "atomic bomb", "bag"], answer: 1 },
+  { question: "What is the color of blood? (HUMAN)", options: ["green", "blue", "red", "black"], answer: 2 },
+  { question: "I eat soup with a...", options: ["spoon", "fork", "knife", "plate"], answer: 0 },
+  { question: "What is the opposite of 'clean'?", options: ["dirty", "neat", "Castillos", "clear"], answer: 0 },
   { question: "Which is a musical instrument?", options: ["guitar", "pen", "lamp", "plate"], answer: 0 },
   { question: "How do you feel when you win?", options: ["sad", "angry", "happy", "tired"], answer: 2 },
-  { question: "What color is a lemon?", options: ["blue", "yellow", "green", "white"], answer: 1 },
-  { question: "What do you do in bed?", options: ["sleep", "eat", "run", "write"], answer: 0 },
-  { question: "What is the opposite of 'high'?", options: ["low", "tall", "big", "up"], answer: 0 },
+  { question: "You get 1 million dollars, what's your reaction?", options: ["i don't care", "OMG I'M SO HAPPY", "OK", "wow"], answer: 1 },
+  { question: "You need to wake up at 7 am, it's 3 am. What are you doing?", options: ["sleep", "fly", "run", "write"], answer: 0 },
+  { question: "Opposite of 'high'", options: ["low", "tall", "big", "up"], answer: 0 },
   { question: "What’s the opposite of 'big'?", options: ["tiny", "thin", "short", "small"], answer: 3 },
   { question: "What do you use to open a door?", options: ["key", "pen", "book", "window"], answer: 0 },
   { question: "How many legs does a spider have?", options: ["6", "8", "4", "2"], answer: 1 },
   { question: "Where do you go when sick?", options: ["hospital", "school", "store", "park"], answer: 0 },
   { question: "Which one is a feeling?", options: ["angry", "chair", "rain", "pen"], answer: 0 },
-  { question: "What’s the opposite of 'day'?", options: ["morning", "evening", "sun", "night"], answer: 3 }
+  { question: "What’s the opposite of 'day'?", options: ["morning", "evening", "sun", "night"], answer: 3 },
+  { question: "Which sentence is correct?", options: ["She don't like apples.", "She doesn't likes apples.", "She doesn't like apples.", "She not like apples."], answer: 2 },
+  { question: "What’s the past tense of 'go'?", options: ["goed", "goes", "went", "gone"], answer: 2 },
+  { question: "Choose the correct question: ___ do you live?", options: ["Why", "Where", "What", "How"], answer: 1 },
+  { question: "‘Always’ is an example of:", options: ["noun", "adjective", "verb", "adverb"], answer: 3 },
+  { question: "What’s the correct sentence?", options: ["I am go to school.", "I going to school.", "I go to school.", "I goes to school."], answer: 2 },
+  { question: "Which is a personality trait?", options: ["happy", "tall", "blue", "quick"], answer: 0 },
+  { question: "Complete: They ___ been here before.", options: ["has", "have", "are", "was"], answer: 1 },
+  { question: "Choose the correct comparative: 'tall' →", options: ["tallest", "taller", "more tall", "tallly"], answer: 1 },
+  { question: "Which sentence is in present continuous?", options: ["I eat pizza.", "I am eating pizza.", "I ate pizza.", "I was eating pizza."], answer: 1 },
+  { question: "Which is an example of a healthy food?", options: ["soda", "chips", "carrot", "cake"], answer: 2 },
+
 ];
 
 while (questions.length < 5) {
@@ -276,7 +284,7 @@ function move(dx, dy) {
     playerPos = {x: nx, y: ny};
     steps++;
     if (maze[ny][nx] === 3) {
-      alert("🎉 ¡Ganaste!");
+      alert("🎉 YOU WIN 🎉🎉🎉 YAYY");
       resetGame();
     } else if (steps >= questionDelay) {
       steps = 0;
@@ -309,14 +317,14 @@ function showQuestion() {
 function answer(i) {
   const correct = questions[questionIndex].answer;
   if (i === correct) {
-    feedback.textContent = "✅ ¡Correcto!";
+    feedback.textContent = "✅ Nice";
     setTimeout(() => {
       questionBox.style.display = "none";
       blocked = false;
       drawMaze();
     }, 1000);
   } else {
-    feedback.textContent = "❌ Incorrecto. Reiniciando...";
+    feedback.textContent = "❌ Hell nah";
     setTimeout(() => {
       resetGame();
       questionBox.style.display = "none";
