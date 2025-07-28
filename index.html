@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-<title>Laberinto Trivia Inglés 32x32</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Laberinto Trivia 16x16</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: #222;
+    background: #111;
     color: #eee;
     margin: 0; padding: 10px;
     display: flex;
@@ -17,505 +17,339 @@
   }
   h1 {
     margin-bottom: 5px;
+    text-align: center;
   }
   #container {
     display: flex;
     align-items: flex-start;
-    gap: 15px;
-    max-width: 850px;
+    flex-direction: column;
+    max-width: 100vw;
     width: 100%;
+    justify-content: center;
+    align-items: center;
   }
   #game {
     display: grid;
-    grid-template-columns: repeat(32, 20px);
-    grid-template-rows: repeat(32, 20px);
+    grid-template-columns: repeat(16, 20px);
+    grid-template-rows: repeat(16, 20px);
     gap: 2px;
-    max-width: 700px;
-    max-height: 700px;
-    overflow: auto;
-    background: #111;
+    background: #000;
     border-radius: 6px;
     border: 2px solid #444;
+    margin-bottom: 15px;
   }
   .cell {
     width: 20px;
     height: 20px;
-    background: #444;
+    background: #333;
     border-radius: 3px;
   }
-  .wall {
-    background: #111;
-  }
-  .player {
-    background: #4caf50;
-  }
-  .exit {
-    background: #fbc02d;
-  }
+  .wall { background: #000; }
+  .player { background: #2196f3; }
+  .exit { background: #fbc02d; }
+
   #questionBox {
-    margin-top: 15px;
-    background: #333;
+    background: #222;
     padding: 15px;
     border-radius: 10px;
-    max-width: 350px;
-    width: 90%;
+    max-width: 90%;
     display: none;
   }
   #questionBox p {
     font-size: 1.1em;
     margin-bottom: 10px;
   }
-  #questionBox img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-bottom: 10px;
-  }
   .optionBtn {
-    display: block;
-    width: 100%;
-    background: #555;
+    background: #444;
     border: none;
     color: white;
     padding: 8px;
     margin: 5px 0;
     border-radius: 6px;
     cursor: pointer;
+    width: 100%;
     text-align: left;
     font-size: 1em;
   }
-  .optionBtn:hover {
-    background: #777;
-  }
+  .optionBtn:hover { background: #666; }
   #feedback {
     margin-top: 10px;
     font-weight: bold;
     min-height: 1.5em;
   }
   #instructions {
-    margin-top: 10px;
     font-size: 0.9em;
     color: #ccc;
-    max-width: 700px;
     text-align: center;
+    max-width: 500px;
   }
-  /* Joystick styles */
   #joystick {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    background: rgba(255,255,255,0.1);
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.05);
     border-radius: 50%;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: inset 0 0 15px rgba(255,255,255,0.2);
-  }
-  #joystickBase {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
+    z-index: 999;
+    touch-action: none;
   }
   #joystickThumb {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    background: #4caf50;
+    width: 50px;
+    height: 50px;
+    background: #2196f3;
     border-radius: 50%;
-    top: 30px;
-    left: 30px;
-    transition: top 0.1s, left 0.1s;
-    box-shadow: 0 0 8px #4caf50;
+    position: absolute;
+    box-shadow: 0 0 10px #2196f3;
+    left: 25px;
+    top: 25px;
   }
-  /* Responsive: el joystick desaparece en pantallas anchas (desktop) */
-  @media (min-width: 900px) {
-    #joystick {
-      display: none;
-    }
+  @media (min-width: 768px) {
+    #joystick { display: none; }
   }
 </style>
 </head>
 <body>
-
-<h1>Laberinto Trivia Inglés 32x32</h1>
-
+<h1>Maze English1º2</h1>
 <div id="container">
   <div id="game"></div>
-
-  <div id="joystick" aria-label="Joystick de control táctil" role="application" tabindex="0">
-    <div id="joystickBase"></div>
-    <div id="joystickThumb"></div>
-  </div>
+  <div id="joystick"><div id="joystickThumb"></div></div>
 </div>
-
-<div id="questionBox" role="dialog" aria-modal="true" aria-labelledby="questionText">
+<div id="questionBox">
   <p id="questionText"></p>
   <div id="optionsContainer"></div>
-  <div id="feedback" aria-live="polite"></div>
+  <div id="feedback"></div>
 </div>
-
 <div id="instructions">
-  Usa las flechas para moverte o el joystick táctil en celular.<br/>
-  Cada 5 o 7 pasos aparece una pregunta.<br/>
-  Si fallás, volvés al inicio.<br/>
-  Llega a la salida amarilla para ganar.
+  Usa las flechas o joystick táctil en celular.<br>
+  Cada 6 pasos aparece una pregunta.<br>
+  Si fallás, volvés al inicio y el laberinto se reinicia.<br>
+  Llegá a la salida amarilla para ganar.
 </div>
-
 <script>
-  const MAZE_SIZE = 32;
-  const maze = [];
+const MAZE_SIZE = 16;
+let maze, playerPos, steps, questionDelay = 6, asked, questionIndex, blocked;
 
-  // Inicializar con paredes
-  for(let y=0; y<MAZE_SIZE; y++) {
-    maze[y] = [];
-    for(let x=0; x<MAZE_SIZE; x++) {
-      maze[y][x] = 1;
-    }
-  }
-
-  // Generar laberinto con backtracking
-  function shuffleArray(arr) {
-    for(let i = arr.length -1; i>0; i--) {
-      const j = Math.floor(Math.random() * (i+1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-  }
-
-  function carvePassagesFrom(cx, cy) {
-    const directions = [
-      [1,0], [-1,0], [0,1], [0,-1]
-    ];
-    shuffleArray(directions);
-
-    for(let [dx, dy] of directions) {
-      const nx = cx + dx*2;
-      const ny = cy + dy*2;
-
-      if(nx >= 0 && nx < MAZE_SIZE && ny >=0 && ny < MAZE_SIZE && maze[ny][nx] === 1) {
-        maze[cy + dy][cx + dx] = 0;  // quitar pared entre
-        maze[ny][nx] = 0;            // espacio
-        carvePassagesFrom(nx, ny);
-      }
-    }
-  }
-
+function resetGame() {
+  maze = Array.from({length: MAZE_SIZE}, () => Array(MAZE_SIZE).fill(1));
+  playerPos = {x:1, y:1};
+  steps = 0;
+  asked = new Set();
+  questionIndex = null;
+  blocked = false;
   maze[1][1] = 0;
-  carvePassagesFrom(1, 1);
+  carveMaze(1,1);
   maze[MAZE_SIZE-2][MAZE_SIZE-2] = 3;
+  drawMaze();
+}
 
-  const questions = [
-    {
-      question: "Choose the correct form of 'to be' for 'I'?",
-      options: ["Is", "Are", "Am", "Be"],
-      answer: 2,
-      image: null
-    },
-    {
-      question: "Who is this famous singer?",
-      options: ["Taylor Swift", "Beyoncé", "Adele", "Rihanna"],
-      answer: 1,
-      image: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Beyonce_2011.jpg"
-    },
-    {
-      question: "Select the correct negative form: 'He ___ a student.'",
-      options: ["is not", "are not", "am not", "be not"],
-      answer: 0,
-      image: null
-    },
-    {
-      question: "Who is this popular actor?",
-      options: ["Tom Cruise", "Brad Pitt", "Leonardo DiCaprio", "Johnny Depp"],
-      answer: 2,
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Leonardo_DiCaprio_66ème_Festival_de_Venise_(Mostra).jpg/440px-Leonardo_DiCaprio_66ème_Festival_de_Venise_(Mostra).jpg"
-    },
-    {
-      question: "Choose the correct form: 'They ___ happy.'",
-      options: ["is", "are", "am", "be"],
-      answer: 1,
-      image: null
-    },
-    {
-      question: "Who is this famous tech entrepreneur?",
-      options: ["Bill Gates", "Elon Musk", "Steve Jobs", "Mark Zuckerberg"],
-      answer: 1,
-      image: "https://upload.wikimedia.org/wikipedia/commons/e/ed/Elon_Musk_Royal_Society_%28crop1%29.jpg"
-    },
-    {
-      question: "Select the correct question form: '___ you a teacher?'",
-      options: ["Is", "Are", "Am", "Be"],
-      answer: 1,
-      image: null
-    },
-    {
-      question: "Who is this pop star?",
-      options: ["Lady Gaga", "Katy Perry", "Ariana Grande", "Dua Lipa"],
-      answer: 0,
-      image: "https://upload.wikimedia.org/wikipedia/commons/4/45/Lady_Gaga_2,_2011_Cannes.jpg"
-    }
-  ];
+function shuffleArray(arr) {
+  for(let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
 
-  let playerPos = {x:1, y:1};
-  let stepsTaken = 0;
-  let stepsToNextQuestion = 5 + (Math.random() < 0.5 ? 0 : 2);
-  let askedQuestionsIndices = new Set();
-  let questionActive = false;
-  let currentQuestionIndex = null;
-
-  const gameDiv = document.getElementById('game');
-  const questionBox = document.getElementById('questionBox');
-  const questionText = document.getElementById('questionText');
-  const optionsContainer = document.getElementById('optionsContainer');
-  const feedback = document.getElementById('feedback');
-
-  function drawMaze() {
-    gameDiv.innerHTML = '';
-    for(let y=0; y<MAZE_SIZE; y++) {
-      for(let x=0; x<MAZE_SIZE; x++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        if(maze[y][x] === 1) cell.classList.add('wall');
-        if(maze[y][x] === 3) cell.classList.add('exit');
-        if(playerPos.x === x && playerPos.y === y) cell.classList.add('player');
-        gameDiv.appendChild(cell);
-      }
+function carveMaze(x, y) {
+  const directions = [[0,2],[0,-2],[2,0],[-2,0]];
+  shuffleArray(directions);
+  for (let [dx, dy] of directions) {
+    const nx = x + dx;
+    const ny = y + dy;
+    if (nx >= 0 && ny >= 0 && nx < MAZE_SIZE && ny < MAZE_SIZE && maze[ny][nx] === 1) {
+      maze[y + dy/2][x + dx/2] = 0;
+      maze[ny][nx] = 0;
+      carveMaze(nx, ny);
     }
   }
+}
 
-  function canMoveTo(x,y) {
-    if(x < 0 || x >= MAZE_SIZE || y < 0 || y >= MAZE_SIZE) return false;
-    if(maze[y][x] === 1) return false;
-    if(questionActive) return false;
-    return true;
-  }
+const game = document.getElementById("game");
+const questionBox = document.getElementById("questionBox");
+const questionText = document.getElementById("questionText");
+const optionsContainer = document.getElementById("optionsContainer");
+const feedback = document.getElementById("feedback");
 
-  function movePlayer(dx, dy) {
-    if(questionActive) return;
-    const newX = playerPos.x + dx;
-    const newY = playerPos.y + dy;
-    if(canMoveTo(newX,newY)) {
-      playerPos.x = newX;
-      playerPos.y = newY;
-      stepsTaken++;
+const questions = [
+  { question: "What is the opposite of 'tall'?", options: ["short", "big", "fat", "thin"], answer: 0 },
+  { question: "Which one is a fruit?", options: ["carrot", "apple", "onion", "lettuce"], answer: 1 },
+  { question: "Complete: I ___ to music.", options: ["listen", "watches", "go", "eats"], answer: 0 },
+  { question: "What’s the weather like? ☀️", options: ["rainy", "windy", "sunny", "snowy"], answer: 2 },
+  { question: "He is very ___ (funny/personality)", options: ["boring", "shy", "kind", "mean"], answer: 2 },
+  { question: "She ___ to school at 7am.", options: ["go", "goes", "going", "went"], answer: 1 },
+  { question: "Which one is a drink?", options: ["juice", "bread", "rice", "chicken"], answer: 0 },
+  { question: "Choose the verb:", options: ["book", "run", "table", "window"], answer: 1 },
+  { question: "What color is the sky?", options: ["blue", "red", "green", "black"], answer: 0 },
+  { question: "What do you wear on your feet?", options: ["gloves", "shirt", "shoes", "hat"], answer: 2 },
+  { question: "What is the opposite of 'hot'?", options: ["warm", "cold", "cool", "boiling"], answer: 1 },
+  { question: "What time is it? 🕒 3:00", options: ["three", "two", "four", "five"], answer: 0 },
+  { question: "Which one is an animal?", options: ["table", "cat", "car", "house"], answer: 1 },
+  { question: "Choose the correct verb: He ___ TV.", options: ["watch", "watches", "watching", "watched"], answer: 1 },
+  { question: "Where do students go?", options: ["hospital", "school", "bank", "gym"], answer: 1 },
+  { question: "Which is a color?", options: ["banana", "yellow", "apple", "fish"], answer: 1 },
+  { question: "Complete: They ___ soccer every day.", options: ["plays", "playing", "play", "played"], answer: 2 },
+  { question: "What is the opposite of 'happy'?", options: ["sad", "glad", "nice", "tall"], answer: 0 },
+  { question: "Where do you sleep?", options: ["bed", "door", "table", "chair"], answer: 0 },
+  { question: "Which one is a fruit?", options: ["rice", "banana", "bread", "meat"], answer: 1 },
+  { question: "Choose the noun:", options: ["run", "blue", "cat", "go"], answer: 2 },
+  { question: "What do you wear on your head?", options: ["hat", "shoes", "pants", "gloves"], answer: 0 },
+  { question: "What do you drink?", options: ["water", "bread", "shoes", "egg"], answer: 0 },
+  { question: "Which one is a vegetable?", options: ["carrot", "apple", "milk", "banana"], answer: 0 },
+  { question: "How do you say 'mañana'?", options: ["yesterday", "today", "tomorrow", "tonight"], answer: 2 },
+  { question: "Complete: I ___ my homework.", options: ["do", "doing", "does", "did"], answer: 0 },
+  { question: "Where is the teacher?", options: ["classroom", "kitchen", "bathroom", "bus stop"], answer: 0 },
+  { question: "What’s the opposite of 'fast'?", options: ["slow", "quick", "running", "small"], answer: 0 },
+  { question: "Complete: She ___ happy.", options: ["is", "are", "be", "am"], answer: 0 },
+  { question: "What do you wear on cold days?", options: ["scarf", "shorts", "sandals", "cap"], answer: 0 },
+  { question: "Where do you buy food?", options: ["supermarket", "hospital", "cinema", "school"], answer: 0 },
+  { question: "What do you use to write?", options: ["pen", "fork", "spoon", "book"], answer: 0 },
+  { question: "What’s the color of a banana?", options: ["green", "red", "yellow", "blue"], answer: 2 },
+  { question: "What does a doctor do?", options: ["teaches", "cooks", "drives", "heals"], answer: 3 },
+  { question: "Which is a day of the week?", options: ["Monday", "April", "Winter", "Morning"], answer: 0 },
+  { question: "What do you drink at breakfast?", options: ["juice", "bread", "cheese", "pasta"], answer: 0 },
+  { question: "What’s the opposite of 'old'?", options: ["young", "tall", "big", "short"], answer: 0 },
+  { question: "How many days are in a week?", options: ["5", "6", "7", "8"], answer: 2 },
+  { question: "Complete: I ___ a sandwich.", options: ["eat", "eating", "ate", "eats"], answer: 0 },
+  { question: "What is an animal that barks?", options: ["cat", "bird", "dog", "lion"], answer: 2 },
+  { question: "Where do you live?", options: ["house", "pencil", "bus", "book"], answer: 0 },
+  { question: "Choose the correct question word: ___ is your name?", options: ["Who", "What", "Where", "Why"], answer: 1 },
+  { question: "What color is grass?", options: ["blue", "green", "red", "white"], answer: 1 },
+  { question: "Complete: We ___ students.", options: ["are", "is", "am", "be"], answer: 0 },
+  { question: "What do you use to cut?", options: ["scissors", "book", "tape", "ball"], answer: 0 },
+  { question: "Which is a room in a house?", options: ["kitchen", "school", "market", "bus"], answer: 0 },
+  { question: "What season is cold and snowy?", options: ["summer", "spring", "winter", "autumn"], answer: 2 },
+  { question: "Which is a transportation?", options: ["bus", "banana", "book", "table"], answer: 0 },
+  { question: "What do you wear on your hands?", options: ["gloves", "socks", "cap", "pants"], answer: 0 },
+  { question: "What do you wear to swim?", options: ["swimsuit", "jacket", "scarf", "boots"], answer: 0 },
+  { question: "Where do you see movies?", options: ["cinema", "park", "school", "bank"], answer: 0 },
+  { question: "Which is a fast animal?", options: ["turtle", "snail", "cheetah", "frog"], answer: 2 },
+  { question: "Which is an emotion?", options: ["happy", "tall", "blue", "chair"], answer: 0 },
+  { question: "Which one is a family member?", options: ["uncle", "teacher", "nurse", "driver"], answer: 0 },
+  { question: "How do you say 'libro'?", options: ["pen", "book", "paper", "bag"], answer: 1 },
+  { question: "What is the color of blood?", options: ["green", "blue", "red", "black"], answer: 2 },
+  { question: "What do you use to eat soup?", options: ["spoon", "fork", "knife", "plate"], answer: 0 },
+  { question: "What is the opposite of 'clean'?", options: ["dirty", "neat", "bright", "clear"], answer: 0 },
+  { question: "Which is a musical instrument?", options: ["guitar", "pen", "lamp", "plate"], answer: 0 },
+  { question: "How do you feel when you win?", options: ["sad", "angry", "happy", "tired"], answer: 2 },
+  { question: "What color is a lemon?", options: ["blue", "yellow", "green", "white"], answer: 1 },
+  { question: "What do you do in bed?", options: ["sleep", "eat", "run", "write"], answer: 0 },
+  { question: "What is the opposite of 'high'?", options: ["low", "tall", "big", "up"], answer: 0 },
+  { question: "What’s the opposite of 'big'?", options: ["tiny", "thin", "short", "small"], answer: 3 },
+  { question: "What do you use to open a door?", options: ["key", "pen", "book", "window"], answer: 0 },
+  { question: "How many legs does a spider have?", options: ["6", "8", "4", "2"], answer: 1 },
+  { question: "Where do you go when sick?", options: ["hospital", "school", "store", "park"], answer: 0 },
+  { question: "Which one is a feeling?", options: ["angry", "chair", "rain", "pen"], answer: 0 },
+  { question: "What’s the opposite of 'day'?", options: ["morning", "evening", "sun", "night"], answer: 3 }
+];
 
-      if(stepsTaken === stepsToNextQuestion) {
-        askQuestion();
-      }
-
-      if(maze[newY][newX] === 3) {
-        alert("🎉 ¡Felicitaciones! Has llegado a la salida y ganado.");
-        resetGame();
-        return;
-      }
-
-      drawMaze();
-    }
-  }
-
-  function askQuestion() {
-    let availableIndices = [];
-    for(let i=0; i<questions.length; i++) {
-      if(!askedQuestionsIndices.has(i)) availableIndices.push(i);
-    }
-    if(availableIndices.length === 0) {
-      askedQuestionsIndices.clear();
-      availableIndices = questions.map((_,i)=>i);
-    }
-    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-    currentQuestionIndex = randomIndex;
-    questionActive = true;
-    showQuestion(questions[randomIndex]);
-  }
-
-  function showQuestion(q) {
-    questionBox.style.display = 'block';
-    feedback.textContent = '';
-
-    const prevImg = questionBox.querySelector('img');
-    if(prevImg) prevImg.remove();
-
-    questionText.textContent = q.question;
-    if(q.image) {
-      const img = document.createElement('img');
-      img.src = q.image;
-      questionBox.insertBefore(img, questionText.nextSibling);
-    }
-
-    optionsContainer.innerHTML = '';
-    q.options.forEach((opt,i) => {
-      const btn = document.createElement('button');
-      btn.textContent = opt;
-      btn.classList.add('optionBtn');
-      btn.onclick = () => answerQuestion(i);
-      optionsContainer.appendChild(btn);
-    });
-  }
-
-  function answerQuestion(selectedIndex) {
-    const correctIndex = questions[currentQuestionIndex].answer;
-    if(selectedIndex === correctIndex) {
-      feedback.textContent = '✅ ¡Correcto! Sigue jugando.';
-      askedQuestionsIndices.add(currentQuestionIndex);
-      questionActive = false;
-      questionBox.style.display = 'none';
-      drawMaze();
-
-      stepsTaken = 0;
-      stepsToNextQuestion = 5 + (Math.random() < 0.5 ? 0 : 2);
-    } else {
-      feedback.textContent = '❌ Incorrecto. Volvés al inicio.';
-      setTimeout(resetGame, 1500);
-    }
-  }
-
-  window.addEventListener('keydown', e => {
-    switch(e.key) {
-      case 'ArrowUp': movePlayer(0,-1); break;
-      case 'ArrowDown': movePlayer(0,1); break;
-      case 'ArrowLeft': movePlayer(-1,0); break;
-      case 'ArrowRight': movePlayer(1,0); break;
-    }
+while (questions.length < 5) {
+  questions.push({
+    question: `Question ${questions.length + 1}: Choose the correct option`,
+    options: ["Option A", "Option B", "Option C", "Option D"],
+    answer: Math.floor(Math.random() * 4)
   });
+}
 
-  gameDiv.addEventListener('click', e => {
-    if(!e.target.classList.contains('cell')) return;
-    if(questionActive) return;
-
-    const cells = Array.from(gameDiv.children);
-    const index = cells.indexOf(e.target);
-    if(index === -1) return;
-
-    const x = index % MAZE_SIZE;
-    const y = Math.floor(index / MAZE_SIZE);
-
-    const dx = x - playerPos.x;
-    const dy = y - playerPos.y;
-
-    if(Math.abs(dx) + Math.abs(dy) === 1) {
-      movePlayer(dx, dy);
-    }
-  });
-
-  // --- Joystick touch handling ---
-
-  const joystick = document.getElementById('joystick');
-  const thumb = document.getElementById('joystickThumb');
-
-  let dragging = false;
-  let origin = {x:0, y:0};
-  const maxDistance = 40; // max px thumb can move from center
-
-  function getTouchPos(evt) {
-    const rect = joystick.getBoundingClientRect();
-    const touch = evt.touches[0] || evt.changedTouches[0];
-    return {
-      x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top
-    };
-  }
-
-  function limitVector(x,y, max) {
-    const length = Math.sqrt(x*x + y*y);
-    if(length > max) {
-      const scale = max / length;
-      return {x: x*scale, y: y*scale};
-    }
-    return {x,y};
-  }
-
-  joystick.addEventListener('touchstart', e => {
-    e.preventDefault();
-    dragging = true;
-    origin = getTouchPos(e);
-    moveThumb(origin.x, origin.y);
-  });
-
-  joystick.addEventListener('touchmove', e => {
-    if(!dragging) return;
-    e.preventDefault();
-    const pos = getTouchPos(e);
-    let dx = pos.x - origin.x;
-    let dy = pos.y - origin.y;
-
-    // Limitar movimiento del thumb
-    const limited = limitVector(dx, dy, maxDistance);
-
-    moveThumb(origin.x + limited.x, origin.y + limited.y);
-
-    // Detectar dirección del joystick si pasa cierto umbral (15 px)
-    if(limited.x > 15 && Math.abs(limited.y) < 20) {
-      tryMove('right');
-    } else if(limited.x < -15 && Math.abs(limited.y) < 20) {
-      tryMove('left');
-    } else if(limited.y < -15 && Math.abs(limited.x) < 20) {
-      tryMove('up');
-    } else if(limited.y > 15 && Math.abs(limited.x) < 20) {
-      tryMove('down');
-    }
-  });
-
-  joystick.addEventListener('touchend', e => {
-    e.preventDefault();
-    dragging = false;
-    resetThumb();
-  });
-
-  joystick.addEventListener('touchcancel', e => {
-    e.preventDefault();
-    dragging = false;
-    resetThumb();
-  });
-
-  function moveThumb(x, y) {
-    const rect = joystick.getBoundingClientRect();
-    // ajustar posición relativa al centro (60,60)
-    const relX = x - rect.left;
-    const relY = y - rect.top;
-    thumb.style.left = (relX - thumb.offsetWidth/2) + 'px';
-    thumb.style.top = (relY - thumb.offsetHeight/2) + 'px';
-  }
-
-  function resetThumb() {
-    // vuelve a centro
-    thumb.style.left = '30px';
-    thumb.style.top = '30px';
-  }
-
-  let lastMoveTime = 0;
-  const moveDelay = 200; // ms entre movimientos del joystick para no mover demasiado rápido
-
-  function tryMove(dir) {
-    const now = Date.now();
-    if(now - lastMoveTime < moveDelay) return;
-    lastMoveTime = now;
-
-    switch(dir) {
-      case 'up': movePlayer(0,-1); break;
-      case 'down': movePlayer(0,1); break;
-      case 'left': movePlayer(-1,0); break;
-      case 'right': movePlayer(1,0); break;
+function drawMaze() {
+  game.innerHTML = "";
+  for (let y = 0; y < MAZE_SIZE; y++) {
+    for (let x = 0; x < MAZE_SIZE; x++) {
+      const div = document.createElement("div");
+      div.className = "cell";
+      if (maze[y][x] === 1) div.classList.add("wall");
+      if (maze[y][x] === 3) div.classList.add("exit");
+      if (x === playerPos.x && y === playerPos.y) div.classList.add("player");
+      game.appendChild(div);
     }
   }
+}
 
-  function resetGame() {
-    playerPos = {x:1, y:1};
-    stepsTaken = 0;
-    stepsToNextQuestion = 5 + (Math.random() < 0.5 ? 0 : 2);
-    questionActive = false;
-    currentQuestionIndex = null;
-    askedQuestionsIndices.clear();
-    questionBox.style.display = 'none';
-    feedback.textContent = '';
-    resetThumb();
+function move(dx, dy) {
+  if (blocked) return;
+  const nx = playerPos.x + dx;
+  const ny = playerPos.y + dy;
+  if (nx < 0 || ny < 0 || nx >= MAZE_SIZE || ny >= MAZE_SIZE) return;
+  if (maze[ny]?.[nx] !== 1) {
+    playerPos = {x: nx, y: ny};
+    steps++;
+    if (maze[ny][nx] === 3) {
+      alert("🎉 ¡Ganaste!");
+      resetGame();
+    } else if (steps >= questionDelay) {
+      steps = 0;
+      showQuestion();
+    }
     drawMaze();
   }
+}
 
-  resetGame();
+function showQuestion() {
+  blocked = true;
+  let available = questions.map((_, i) => i).filter(i => !asked.has(i));
+  if (available.length === 0) asked.clear(), available = [...Array(questions.length).keys()];
+  questionIndex = available[Math.floor(Math.random() * available.length)];
+  const q = questions[questionIndex];
+  asked.add(questionIndex);
+  questionBox.style.display = "block";
+  questionText.textContent = q.question;
+  optionsContainer.innerHTML = "";
+  feedback.textContent = "";
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.textContent = opt;
+    btn.className = "optionBtn";
+    btn.onclick = () => answer(i);
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function answer(i) {
+  const correct = questions[questionIndex].answer;
+  if (i === correct) {
+    feedback.textContent = "✅ ¡Correcto!";
+    setTimeout(() => {
+      questionBox.style.display = "none";
+      blocked = false;
+      drawMaze();
+    }, 1000);
+  } else {
+    feedback.textContent = "❌ Incorrecto. Reiniciando...";
+    setTimeout(() => {
+      resetGame();
+      questionBox.style.display = "none";
+    }, 1500);
+  }
+}
+
+window.addEventListener("keydown", e => {
+  if (e.key === "ArrowUp") move(0,-1);
+  else if (e.key === "ArrowDown") move(0,1);
+  else if (e.key === "ArrowLeft") move(-1,0);
+  else if (e.key === "ArrowRight") move(1,0);
+});
+
+// Joystick
+const joystick = document.getElementById("joystick");
+const thumb = document.getElementById("joystickThumb");
+let origin = null, lastMove = 0;
+joystick.addEventListener("touchstart", e => origin = e.touches[0]);
+joystick.addEventListener("touchmove", e => {
+  const touch = e.touches[0];
+  const dx = touch.clientX - origin.clientX;
+  const dy = touch.clientY - origin.clientY;
+  const now = Date.now();
+  if (now - lastMove < 200) return;
+  lastMove = now;
+  if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1, 0);
+  else move(0, dy > 0 ? 1 : -1);
+});
+joystick.addEventListener("touchend", () => thumb.style.left = thumb.style.top = "25px");
+
+// Start
+resetGame();
 </script>
-
 </body>
 </html>
