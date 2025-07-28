@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<title>Laberinto Trivia Inglés 32x32</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #222;
+    color: #eee;
+    margin: 0; padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+  }
+  h1 {
+    margin-bottom: 5px;
+  }
+  #container {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    max-width: 850px;
+    width: 100%;
+  }
+  #game {
+    display: grid;
+    grid-template-columns: repeat(32, 20px);
+    grid-template-rows: repeat(32, 20px);
+    gap: 2px;
+    max-width: 700px;
+    max-height: 700px;
+    overflow: auto;
+    background: #111;
+    border-radius: 6px;
+    border: 2px solid #444;
+  }
+  .cell {
+    width: 20px;
+    height: 20px;
+    background: #444;
+    border-radius: 3px;
+  }
+  .wall {
+    background: #111;
+  }
+  .player {
+    background: #4caf50;
+  }
+  .exit {
+    background: #fbc02d;
+  }
+  #questionBox {
+    margin-top: 15px;
+    background: #333;
+    padding: 15px;
+    border-radius: 10px;
+    max-width: 350px;
+    width: 90%;
+    display: none;
+  }
+  #questionBox p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+  }
+  #questionBox img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .optionBtn {
+    display: block;
+    width: 100%;
+    background: #555;
+    border: none;
+    color: white;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 1em;
+  }
+  .optionBtn:hover {
+    background: #777;
+  }
+  #feedback {
+    margin-top: 10px;
+    font-weight: bold;
+    min-height: 1.5em;
+  }
+  #instructions {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #ccc;
+    max-width: 700px;
+    text-align: center;
+  }
+  /* Joystick styles */
+  #joystick {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 15px rgba(255,255,255,0.2);
+  }
+  #joystickBase {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+  #joystickThumb {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: #4caf50;
+    border-radius: 50%;
+    top: 30px;
+    left: 30px;
+    transition: top 0.1s, left 0.1s;
+    box-shadow: 0 0 8px #4caf50;
+  }
+  /* Responsive: el joystick desaparece en pantallas anchas (desktop) */
+  @media (min-width: 900px) {
+    #joystick {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Laberinto Trivia Inglés 32x32</h1>
+
+<div id="container">
+  <div id="game"></div>
+
+  <div id="joystick" aria-label="Joystick de control táctil" role="application" tabindex="0">
+    <div id="joystickBase"></div>
+    <div id="joystickThumb"></div>
+  </div>
+</div>
+
+<div id="questionBox" role="dialog" aria-modal="true" aria-labelledby="questionText">
+  <p id="questionText"></p>
+  <div id="optionsContainer"></div>
+  <div id="feedback" aria-live="polite"></div>
+</div>
+
+<div id="instructions">
+  Usa las flechas para moverte o el joystick táctil en celular.<br/>
+  Cada 5 o 7 pasos aparece una pregunta.<br/>
+  Si fallás, volvés al inicio.<br/>
+  Llega a la salida amarilla para ganar.
+</div>
+
+<script>
+  const MAZE_SIZE = 32;
+  const maze = [];
+
+  // Inicializar con paredes
+  for(let y=0; y<MAZE_SIZE; y++) {
+    maze[y] = [];
+    for(let x=0; x<MAZE_SIZE; x++) {
+      maze[y][x] = 1;
+    }
+  }
+
+  // Generar laberinto con backtracking
+  function shuffleArray(arr) {
+    for(let i = arr.length -1; i>0; i--) {
+      const j = Math.floor(Math.random() * (i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  function carvePassagesFrom(cx, cy) {
+    const directions = [
+      [1,0], [-1,0], [0,1], [0,-1]
+    ];
+    shuffleArray(directions);
+
+    for(let [dx, dy] of directions) {
+      const nx = cx + dx*2;
+      const ny = cy + dy*2;
+
+      if(nx >= 0 && nx < MAZE_SIZE && ny >=0 && ny < MAZE_SIZE && maze[ny][nx] === 1) {
+        maze[cy + dy][cx + dx] = 0;  // quitar pared entre
+        maze[ny][nx] = 0;            // espacio
+        carvePassagesFrom(nx, ny);
+      }
+    }
+  }
+
+  maze[1][1] = 0;
+  carvePassagesFrom(1, 1);
+  maze[MAZE_SIZE-2][MAZE_SIZE-2] = 3;
+
+  const questions = [
+    {
+      question: "Choose the correct form of 'to be' for 'I'?",
+      options: ["Is", "Are", "Am", "Be"],
+      answer: 2,
+      image: null
+    },
+    {
+      question: "Who is this famous singer?",
+      options: ["Taylor Swift", "Beyoncé", "Adele", "Rihanna"],
+      answer: 1,
+      image: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Beyonce_2011.jpg"
+    },
+    {
+      question: "Select the correct negative form: 'He ___ a student.'",
+      options: ["is not", "are not", "am not", "be not"],
+      answer: 0,
+      image: null
+    },
+    {
+      question: "Who is this popular actor?",
+      options: ["Tom Cruise", "Brad Pitt", "Leonardo DiCaprio", "Johnny Depp"],
+      answer: 2,
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Leonardo_DiCaprio_66ème_Festival_de_Venise_(Mostra).jpg/440px-Leonardo_DiCaprio_66ème_Festival_de_Venise_(Mostra).jpg"
+    },
+    {
+      question: "Choose the correct form: 'They ___ happy.'",
+      options: ["is", "are", "am", "be"],
+      answer: 1,
+      image: null
+    },
+    {
+      question: "Who is this famous tech entrepreneur?",
+      options: ["Bill Gates", "Elon Musk", "Steve Jobs", "Mark Zuckerberg"],
+      answer: 1,
+      image: "https://upload.wikimedia.org/wikipedia/commons/e/ed/Elon_Musk_Royal_Society_%28crop1%29.jpg"
+    },
+    {
+      question: "Select the correct question form: '___ you a teacher?'",
+      options: ["Is", "Are", "Am", "Be"],
+      answer: 1,
+      image: null
+    },
+    {
+      question: "Who is this pop star?",
+      options: ["Lady Gaga", "Katy Perry", "Ariana Grande", "Dua Lipa"],
+      answer: 0,
+      image: "https://upload.wikimedia.org/wikipedia/commons/4/45/Lady_Gaga_2,_2011_Cannes.jpg"
+    }
+  ];
+
+  let playerPos = {x:1, y:1};
+  let stepsTaken = 0;
+  let stepsToNextQuestion = 5 + (Math.random() < 0.5 ? 0 : 2);
+  let askedQuestionsIndices = new Set();
+  let questionActive = false;
+  let currentQuestionIndex = null;
+
+  const gameDiv = document.getElementById('game');
+  const questionBox = document.getElementById('questionBox');
+  const questionText = document.getElementById('questionText');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const feedback = document.getElementById('feedback');
+
+  function drawMaze() {
+    gameDiv.innerHTML = '';
+    for(let y=0; y<MAZE_SIZE; y++) {
+      for(let x=0; x<MAZE_SIZE; x++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        if(maze[y][x] === 1) cell.classList.add('wall');
+        if(maze[y][x] === 3) cell.classList.add('exit');
+        if(playerPos.x === x && playerPos.y === y) cell.classList.add('player');
+        gameDiv.appendChild(cell);
+      }
+    }
+  }
+
+  function canMoveTo(x,y) {
+    if(x < 0 || x >= MAZE_SIZE || y < 0 || y >= MAZE_SIZE) return false;
+    if(maze[y][x] === 1) return false;
+    if(questionActive) return false;
+    return true;
+  }
+
+  function movePlayer(dx, dy) {
+    if(questionActive) return;
+    const newX = playerPos.x + dx;
+    const newY = playerPos.y + dy;
+    if(canMoveTo(newX,newY)) {
+      playerPos.x = newX;
+      playerPos.y = newY;
+      stepsTaken++;
+
+      if(stepsTaken === stepsToNextQuestion) {
+        askQuestion();
+      }
+
+      if(maze[newY][newX] === 3) {
+        alert("🎉 ¡Felicitaciones! Has llegado a la salida y ganado.");
+        resetGame();
+        return;
+      }
+
+      drawMaze();
+    }
+  }
+
+  function askQuestion() {
+    let availableIndices = [];
+    for(let i=0; i<questions.length; i++) {
+      if(!askedQuestionsIndices.has(i)) availableIndices.push(i);
+    }
+    if(availableIndices.length === 0) {
+      askedQuestionsIndices.clear();
+      availableIndices = questions.map((_,i)=>i);
+    }
+    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+    currentQuestionIndex = randomIndex;
+    questionActive = true;
+    showQuestion(questions[randomIndex]);
+  }
+
+  function showQuestion(q) {
+    questionBox.style.display = 'block';
+    feedback.textContent = '';
+
+    const prevImg = questionBox.querySelector('img');
+    if(prevImg) prevImg.remove();
+
+    questionText.textContent = q.question;
+    if(q.image) {
+      const img = document.createElement('img');
+      img.src = q.image;
+      questionBox.insertBefore(img, questionText.nextSibling);
+    }
+
+    optionsContainer.innerHTML = '';
+    q.options.forEach((opt,i) => {
+      const btn = document.createElement('button');
+      btn.textContent = opt;
+      btn.classList.add('optionBtn');
+      btn.onclick = () => answerQuestion(i);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function answerQuestion(selectedIndex) {
+    const correctIndex = questions[currentQuestionIndex].answer;
+    if(selectedIndex === correctIndex) {
+      feedback.textContent = '✅ ¡Correcto! Sigue jugando.';
+      askedQuestionsIndices.add(currentQuestionIndex);
+      questionActive = false;
+      questionBox.style.display = 'none';
+      drawMaze();
+
+      stepsTaken = 0;
+      stepsToNextQuestion = 5 + (Math.random() < 0.5 ? 0 : 2);
+    } else {
+      feedback.textContent = '❌ Incorrecto. Volvés al inicio.';
+      setTimeout(resetGame, 1500);
+    }
+  }
+
+  window.addEventListener('keydown', e => {
+    switch(e.key) {
+      case 'ArrowUp': movePlayer(0,-1); break;
+      case 'ArrowDown': movePlayer(0,1); break;
+      case 'ArrowLeft': movePlayer(-1,0); break;
+      case 'ArrowRight': movePlayer(1,0); break;
+    }
+  });
+
+  gameDiv.addEventListener('click', e => {
+    if(!e.target.classList.contains('cell')) return;
+    if(questionActive) return;
+
+    const cells = Array.from(gameDiv.children);
+    const index = cells.indexOf(e.target);
+    if(index === -1) return;
+
+    const x = index % MAZE_SIZE;
+    const y = Math.floor(index / MAZE_SIZE);
+
+    const dx = x - playerPos.x;
+    const dy = y - playerPos.y;
+
+    if(Math.abs(dx) + Math.abs(dy) === 1) {
+      movePlayer(dx, dy);
+    }
+  });
+
+  // --- Joystick touch handling ---
+
+  const joystick = document.getElementById('joystick');
+  const thumb = document.getElementById('joystickThumb');
+
+  let dragging = false;
+  let origin = {x:0, y:0};
+  const maxDistance = 40; // max px thumb can move from center
+
+  function getTouchPos(evt) {
+    const rect = joystick.getBoundingClientRect();
+    const touch = evt.touches[0] || evt.changedTouches[0];
+    return {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top
+    };
+  }
+
+  function limitVector(x,y, max) {
+    const length = Math.sqrt(x*x + y*y);
+    if(length > max) {
+      const scale = max / length;
+      return {x: x*scale, y: y*scale};
+    }
+    return {x,y};
+  }
+
+  joystick.addEventListener('touchstart', e => {
+    e.preventDefault();
+    dragging = true;
+    origin = getTouchPos(e);
+    moveThumb(origin.x, origin.y);
+  });
+
+  joystick.addEventListener('touchmove', e => {
+    if(!dragging) return;
+    e.preventDefault();
+    const pos = getTouchPos(e);
+    let dx = pos.x - origin.x;
+    let dy = pos.y - origin.y;
+
+    // Limitar movimiento del thumb
+    const limited = limitVector(dx, dy, maxDistance);
+
+    moveThumb(origin.x + limited.x, origin.y + limited.y);
+
+    // Detectar dirección del joystick si pasa cierto umbral (15 px)
+    if(limited.x > 15 && Math.abs(limited.y) < 20) {
+      tryMove('right');
+    } else if(limited.x < -15 && Math.abs(limited.y) < 20) {
+      tryMove('left');
+    } else if(limited.y < -15 && Math.abs(limited.x) < 20) {
+      tryMove('up');
+    } else if(limited.y > 15 && Math.abs(limited.x) < 20) {
+      tryMove('down');
+    }
+  });
+
+  joystick.addEventListener('touchend', e => {
+    e.preventDefault();
+    dragging = false;
+    resetThumb();
+  });
+
+  joystick.addEventListener('touchcancel', e => {
+    e.preventDefault();
+    dragging = false;
+    resetThumb();
+  });
+
+  function moveThumb(x, y) {
+    const rect = joystick.getBoundingClientRect();
+    // ajustar posición relativa al centro (60,60)
+    const relX = x - rect.left;
+    const relY = y - rect.top;
+    thumb.style.left = (relX - thumb.offsetWidth/2) + 'px';
+    thumb.style.top = (relY - thumb.offsetHeight/2) + 'px';
+  }
+
+  function resetThumb() {
+    // vuelve a centro
+    thumb.style.left = '30px';
+    thumb.style.top = '30px';
+  }
+
+  let lastMoveTime = 0;
+  const moveDelay = 200; // ms entre movimientos del joystick para no mover demasiado rápido
+
+  function tryMove(dir) {
+    const now = Date.now();
+    if(now - lastMoveTime < moveDelay) return;
+    lastMoveTime = now;
+
+    switch(dir) {
+      case 'up': movePlayer(0,-1); break;
+      case 'down': movePlayer(0,1); break;
+      case 'left': movePlayer(-1,0); break;
+      case 'right': movePlayer(1,0); break;
+    }
+  }
+
+  function resetGame() {
+    playerPos = {x:1, y:1};
+    stepsTaken = 0;
+    stepsToNextQuestion = 5 + (Math.random() < 0.5 ? 0 : 2);
+    questionActive = false;
+    currentQuestionIndex = null;
+    askedQuestionsIndices.clear();
+    questionBox.style.display = 'none';
+    feedback.textContent = '';
+    resetThumb();
+    drawMaze();
+  }
+
+  resetGame();
+</script>
+
+</body>
+</html>
